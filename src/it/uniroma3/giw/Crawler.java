@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.DomAttr;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
@@ -15,53 +14,51 @@ public class Crawler {
 		long start = System.currentTimeMillis()/1000;
 
 		doCrawling();
-		
+
 		long end = System.currentTimeMillis()/1000;
 		System.out.println("Tempo impiegato: " + (end-start));
 	}
 
 	private static void doCrawling() {
-		String firstPage = "http://htmlunit.sourceforge.net/";
-		
+		String firstPageUrl = "http://htmlunit.sourceforge.net/";
+
 		DocumentSaver ds = new DocumentSaver();
 		// Test
 		final WebClient webClient = new WebClient();
-		HtmlPage page;
+		HtmlPage firstPage;
 		// List<HtmlPage> pages = new ArrayList<HtmlPage>();
+
 		try {
-			page = webClient.getPage(firstPage);
+			firstPage = webClient.getPage(firstPageUrl);
 
 			// List<DomAttr> pages = (List<DomAttr>)
 			// page.getByXPath("//a/@href");
 			//System.out.println(page.getByXPath("//a[contains(@href, '.htm')]").get(0).getClass());
-			
-			List<HtmlAnchor> anchors = (List<HtmlAnchor>) page
+
+			List<HtmlAnchor> anchors = (List<HtmlAnchor>) firstPage
 					.getByXPath("//a[contains(@href, '.htm')]");
 			// List<HtmlAnchor> anchors = page.getAnchors();
 
+			HtmlPage htmlPage;
+
 			for (HtmlAnchor anchor : anchors) {
+
 				try {
-					HtmlPage htmlPage = webClient.getPage(anchor.getHrefAttribute());
-					
+
+					htmlPage = anchor.click();
+
 					System.out.println(htmlPage.getTitleText());
-					
-					ds.save(page, anchor.getHrefAttribute());
-				} catch (MalformedURLException e) {
-					
-					try{
-					HtmlPage htmlPage = webClient.getPage(firstPage
-							+ anchor.getHrefAttribute());
-					
-					System.out.println(htmlPage.getTitleText());
-					
-					ds.save(page, firstPage+anchor.getHrefAttribute());
-					} catch (Exception e1){
-						System.out.println(anchor.getHrefAttribute()+" not found!!!");
-					}
+
+					ds.save(htmlPage);
+				} catch (Exception e) {
+					System.out.println("ERRORE: "+anchor.getHrefAttribute());
 				}
+
 			}
+
+
+
 		} catch (FailingHttpStatusCodeException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (MalformedURLException e) {
 			e.printStackTrace();

@@ -58,7 +58,7 @@ public class DocumentSaver {
 	}
 
 
-	public void save(HtmlPage page, String url) {
+	public void save(HtmlPage page) {
 		
 		try {
 			String nameFile = this.crawlerPath + getStringFromCounter(counter) +".html";
@@ -66,7 +66,7 @@ public class DocumentSaver {
 			
 			page.save(new File(nameFile));
 			
-			this.append(id2UrlPath + "id2url.txt", nameFile + " -> " + url);
+			this.append(id2UrlPath + "id2url.txt", nameFile + " -> " + page.getUrl().toString());
 			
 			counter++;
 		} catch (IOException e) {
