@@ -41,17 +41,20 @@ public class Crawler {
 
 			for (HtmlAnchor anchor : anchors) {
 				try {
-					HtmlPage htmlPage = webClient.getPage(anchor
-							.getHrefAttribute());
+					HtmlPage htmlPage = webClient.getPage(anchor.getHrefAttribute());
+					
 					System.out.println(htmlPage.getTitleText());
-					ds.save(page);
+					
+					ds.save(page, anchor.getHrefAttribute());
 				} catch (MalformedURLException e) {
 					
 					try{
 					HtmlPage htmlPage = webClient.getPage(firstPage
 							+ anchor.getHrefAttribute());
+					
 					System.out.println(htmlPage.getTitleText());
-					ds.save(page);
+					
+					ds.save(page, firstPage+anchor.getHrefAttribute());
 					} catch (Exception e1){
 						System.out.println(anchor.getHrefAttribute()+" not found!!!");
 					}

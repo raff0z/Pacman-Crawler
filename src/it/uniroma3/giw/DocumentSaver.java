@@ -1,8 +1,12 @@
 package it.uniroma3.giw;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.Properties;
 
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -11,7 +15,9 @@ public class DocumentSaver {
 	
 	private int counter;
 	private String crawlerPath;
+	private String id2UrlPath;
 	private static final int STRING_LENGTH = 5;
+	private File id2Url;
 	
 	public DocumentSaver() {
 		this.counter = 0;
@@ -28,8 +34,17 @@ public class DocumentSaver {
 		}		
 
 		this.crawlerPath = conf.getProperty("crawler-path");
+		this.id2UrlPath = conf.getProperty("id2url-path");
 		
+		this.id2Url = new File(id2UrlPath + "id2url.txt");
 		cleanPath();
+		try {
+			new File(this.id2UrlPath).mkdir();
+			this.id2Url.createNewFile();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	
@@ -43,13 +58,16 @@ public class DocumentSaver {
 	}
 
 
-	public void save(HtmlPage page) {
+	public void save(HtmlPage page, String url) {
 		
 		try {
-			String s = this.crawlerPath + getStringFromCounter(counter) +".html";
+			String nameFile = this.crawlerPath + getStringFromCounter(counter) +".html";
 			
 			
-			page.save(new File(s));
+			page.save(new File(nameFile));
+			
+			this.append(id2UrlPath + "id2url.txt", nameFile + " -> " + url);
+			
 			counter++;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -80,16 +98,33 @@ public class DocumentSaver {
 		File dir = new File(crawlerPath);
 		
 		deleteFolder(dir);
+		
+		if(this.id2Url.exists()){
+			this.id2Url.delete();
+			new File(this.id2UrlPath).delete();
+		}
+		
 		System.out.println("Fatto");
 	}
 
 
 	private void deleteFolder(File d) {
-		// TODO Auto-generated method stub
 		for(File f : d.listFiles()) {
 			if(!f.isFile())
 				deleteFolder(f);
 			f.delete();		
 		}
 	}
+	
+	
+	private void append(String fileName, String toAppend) {
+		try {			
+			FileWriter fw = new FileWriter(fileName,true); 
+			fw.write(toAppend+ "\n");
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 }
