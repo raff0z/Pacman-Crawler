@@ -22,7 +22,8 @@ public class Crawler {
 
 	private static void doCrawling() {
 		String firstPage = "http://htmlunit.sourceforge.net/";
-
+		
+		DocumentSaver ds = new DocumentSaver();
 		// Test
 		final WebClient webClient = new WebClient();
 		HtmlPage page;
@@ -43,13 +44,14 @@ public class Crawler {
 					HtmlPage htmlPage = webClient.getPage(anchor
 							.getHrefAttribute());
 					System.out.println(htmlPage.getTitleText());
-
+					ds.save(page);
 				} catch (MalformedURLException e) {
 					
 					try{
 					HtmlPage htmlPage = webClient.getPage(firstPage
 							+ anchor.getHrefAttribute());
 					System.out.println(htmlPage.getTitleText());
+					ds.save(page);
 					} catch (Exception e1){
 						System.out.println(anchor.getHrefAttribute()+" not found!!!");
 					}
