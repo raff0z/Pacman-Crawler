@@ -16,7 +16,7 @@ public class Crawler {
     }
 
     private static void doCrawling() {
-	String firstPage = "http://htmlunit.sourceforge.net";
+	String firstPage = "http://htmlunit.sourceforge.net/";
 
 	// Test
 	final WebClient webClient = new WebClient();
