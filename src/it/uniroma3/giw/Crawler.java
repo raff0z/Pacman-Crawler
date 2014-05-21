@@ -2,70 +2,110 @@ package it.uniroma3.giw;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
+import com.gargoylesoftware.htmlunit.ThreadedRefreshHandler;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 public class Crawler {
-	public static void main(String[] args) {
-		long start = System.currentTimeMillis()/1000;
-
-		doCrawling();
-
-		long end = System.currentTimeMillis()/1000;
-		System.out.println("Tempo impiegato: " + (end-start));
+	
+	private String firstPageUrl;
+	private DocumentSaver documentSaver;
+	private final int CRAWLER_MAX_LENGTH = 10;
+	private int pageSavedNumbers = 0;
+	private List<HtmlAnchor> pageToVisit;
+	private final double TRESHOLD = 0.2; 
+	
+	public Crawler(){
+		this.firstPageUrl = "http://www.tuttomercatoweb.com/";
+		this.documentSaver = new DocumentSaver();
+		this.pageToVisit = new LinkedList<HtmlAnchor>();
+	}	
+	
+	public WebClient getNewWebClient(){
+		WebClient webClient = new WebClient();
+		webClient.getOptions().setCssEnabled(false);
+		webClient.getOptions().setAppletEnabled(false);
+		webClient.getOptions().setJavaScriptEnabled(false);
+		return webClient;
 	}
 
-	private static void doCrawling() {
-		String firstPageUrl = "http://htmlunit.sourceforge.net/";
-
-		DocumentSaver ds = new DocumentSaver();
-		// Test
-		final WebClient webClient = new WebClient();
+	public void doCrawling() {
+		
+		WebClient webClient = this.getNewWebClient();		
 		HtmlPage firstPage;
-		// List<HtmlPage> pages = new ArrayList<HtmlPage>();
 
 		try {
-			firstPage = webClient.getPage(firstPageUrl);
-
-			// List<DomAttr> pages = (List<DomAttr>)
-			// page.getByXPath("//a/@href");
-			//System.out.println(page.getByXPath("//a[contains(@href, '.htm')]").get(0).getClass());
-
-			List<HtmlAnchor> anchors = (List<HtmlAnchor>) firstPage
-					.getByXPath("//a[contains(@href, '.htm')]");
-			// List<HtmlAnchor> anchors = page.getAnchors();
-
-			HtmlPage htmlPage;
-
-			for (HtmlAnchor anchor : anchors) {
-
+			firstPage = webClient.getPage(this.firstPageUrl);
+			this.save(firstPage);
+			
+			this.pageToVisit.addAll(firstPage.getAnchors());
+			HtmlPage htmlPage = this.getPageFromList(this.pageToVisit, 0);
+			
+			while (htmlPage != null){
+				
 				try {
-
-					htmlPage = anchor.click();
-
 					System.out.println(htmlPage.getTitleText());
-
-					ds.save(htmlPage);
+					this.save(htmlPage);
+					htmlPage = this.getNextPage(htmlPage);
+					
 				} catch (Exception e) {
-					System.out.println("ERRORE: "+anchor.getHrefAttribute());
-				}
-
+					System.out.println("ERRORE: "+htmlPage.getUrl());
+				}				
 			}
 
-
-
-		} catch (FailingHttpStatusCodeException e) {
+		} catch (FailingHttpStatusCodeException | IOException e) {
 			e.printStackTrace();
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		} 
 
 		webClient.closeAllWindows();
 	}
+	
+	/**
+	 * Preleva ed elimina l'oggetto dalla lista
+	 * @param list 
+	 * @return
+	 * @throws IOException 
+	 */
+	private HtmlPage getPageFromList(List<HtmlAnchor> list, int index) throws IOException{
+		HtmlPage page = list.get(index).click();
+		list.remove(index);
+		return page;
+	}
+	
+
+	private HtmlPage getNextPage(HtmlPage htmlPage) throws IOException{
+		
+		//Controllo se ho raggiunto il limite di pagine salvate
+		if (this.pageSavedNumbers == this.CRAWLER_MAX_LENGTH)
+			return null;
+		
+		List<HtmlAnchor> newAnchors = htmlPage.getAnchors();
+		
+		HtmlPage nextPage;
+		int randomIndex;
+		double randomSurfer = Math.random();
+		if (randomSurfer<TRESHOLD){
+			randomIndex = (int) (Math.random() * this.pageToVisit.size());
+			nextPage = this.getPageFromList(this.pageToVisit, randomIndex);		
+		} else {
+			randomIndex = (int) (Math.random() * newAnchors.size());
+			
+			nextPage = this.getPageFromList(newAnchors, randomIndex);
+		}
+		
+		this.pageToVisit.addAll(newAnchors);
+		return nextPage;		
+	}
+
+	private void save(HtmlPage page) {
+		if (this.documentSaver.save(page))
+			this.pageSavedNumbers++;		
+	}
+	
 }

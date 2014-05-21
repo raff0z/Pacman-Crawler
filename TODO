@@ -1,0 +1,2 @@
+Problemi: 
+	- Il random surfer evita i loop, ma può far salvare la stessa pagina più volte con id diversi

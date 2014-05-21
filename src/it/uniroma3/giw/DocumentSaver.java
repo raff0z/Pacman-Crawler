@@ -25,9 +25,6 @@ public class DocumentSaver {
 		Properties conf = new Properties();
 		try {
 			InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("config/pacman_configuration.properties");
-			if(inputStream == null)
-				System.out.println("qua");
-			
 			conf.load(inputStream);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -36,8 +33,8 @@ public class DocumentSaver {
 		this.crawlerPath = conf.getProperty("crawler-path");
 		this.id2UrlPath = conf.getProperty("id2url-path");
 		
-		this.id2Url = new File(id2UrlPath + "id2url.txt");
-		cleanPath();
+		this.id2Url = new File(this.id2UrlPath + "id2url.txt");
+		this.cleanPath();
 		try {
 			new File(this.id2UrlPath).mkdir();
 			this.id2Url.createNewFile();
@@ -46,67 +43,54 @@ public class DocumentSaver {
 			e.printStackTrace();
 		}
 	}
-
 	
 	public int getCounter() {
-		return counter;
+		return this.counter;
 	}
-
 
 	public void setCounter(int counter) {
 		this.counter = counter;
 	}
 
-
-	public void save(HtmlPage page) {
+	public boolean save(HtmlPage page) {
 		
 		try {
-			String nameFile = this.crawlerPath + getStringFromCounter(counter) +".html";
-			
-			
-			page.save(new File(nameFile));
-			
-			this.append(id2UrlPath + "id2url.txt", nameFile + " -> " + page.getUrl().toString());
-			
-			counter++;
+			String nameFile = this.crawlerPath + getStringFromCounter(this.counter) +".html";
+			page.save(new File(nameFile));			
+			this.append(this.id2UrlPath + "id2url.txt", nameFile + " -> " + page.getUrl().toString());			
+			this.counter++;
+			return true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return false;
 	}
-	
 	
 	private String getStringFromCounter(int counter) {
 		int zeroToAdd = 4;
-		
 		if(counter > 0) 
 			zeroToAdd = STRING_LENGTH - (int) Math.log10(counter) - 1;
 		
-		
 		String output = "";
-		
 		while(zeroToAdd > 0) {
 			output+="0";
 			zeroToAdd--;
 		}
-		
 		return output+""+counter;
 		
 	}
 	
 	private void cleanPath() {
-		File dir = new File(crawlerPath);
-		
-		deleteFolder(dir);
+		File dir = new File(this.crawlerPath);
+		if (dir.exists())
+			deleteFolder(dir);
 		
 		if(this.id2Url.exists()){
 			this.id2Url.delete();
 			new File(this.id2UrlPath).delete();
 		}
-		
-		System.out.println("Fatto");
 	}
-
 
 	private void deleteFolder(File d) {
 		for(File f : d.listFiles()) {
@@ -115,7 +99,6 @@ public class DocumentSaver {
 			f.delete();		
 		}
 	}
-	
 	
 	private void append(String fileName, String toAppend) {
 		try {			
