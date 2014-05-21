@@ -21,9 +21,9 @@ public class Crawler {
 	private List<HtmlAnchor> pageToVisit;
 	private final double TRESHOLD = 0.2; 
 	
-	public Crawler(){
-		this.firstPageUrl = "http://www.tuttomercatoweb.com/";
-		this.documentSaver = new DocumentSaver();
+	public Crawler(String firstPage, String foldierName){
+		this.firstPageUrl = firstPage;
+		this.documentSaver = new DocumentSaver(foldierName);
 		this.pageToVisit = new LinkedList<HtmlAnchor>();
 	}	
 	

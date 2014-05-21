@@ -19,7 +19,7 @@ public class DocumentSaver {
 	private static final int STRING_LENGTH = 5;
 	private File id2Url;
 	
-	public DocumentSaver() {
+	public DocumentSaver(String foldierName) {
 		this.counter = 0;
 		
 		Properties conf = new Properties();
@@ -33,11 +33,15 @@ public class DocumentSaver {
 		this.crawlerPath = conf.getProperty("crawler-path");
 		this.id2UrlPath = conf.getProperty("id2url-path");
 		
-		this.id2Url = new File(this.id2UrlPath + "id2url.txt");
+		this.crawlerPath += foldierName + File.separator + "pages" + File.separator;
+		this.id2UrlPath += foldierName + File.separator;
+		
+		this.id2Url = new File(this.id2UrlPath + File.separator + "id2url.txt");
 		this.cleanPath();
 		try {
 			new File(this.id2UrlPath).mkdir();
 			this.id2Url.createNewFile();
+			new File(this.crawlerPath).mkdir();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
