@@ -2,9 +2,11 @@ package it.uniroma3.giw;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.ThreadedRefreshHandler;
@@ -21,10 +23,13 @@ public class Crawler {
 	private List<HtmlAnchor> pageToVisit;
 	private final double TRESHOLD = 0.2; 
 	
+	private Set<String> visitedPage;
+	
 	public Crawler(String firstPage, String foldierName){
 		this.firstPageUrl = firstPage;
 		this.documentSaver = new DocumentSaver(foldierName);
 		this.pageToVisit = new LinkedList<HtmlAnchor>();
+		this.visitedPage = new HashSet<String>();
 	}	
 	
 	public WebClient getNewWebClient(){
@@ -43,6 +48,8 @@ public class Crawler {
 		try {
 			firstPage = webClient.getPage(this.firstPageUrl);
 			this.save(firstPage);
+			this.visitedPage.add(firstPage.getUrl().toString());
+			String s = firstPage.getUrl().toString();
 			
 			this.pageToVisit.addAll(firstPage.getAnchors());
 			HtmlPage htmlPage = this.getPageFromList(this.pageToVisit, 0);
@@ -50,12 +57,16 @@ public class Crawler {
 			while (htmlPage != null){
 				
 				try {
-					System.out.println(htmlPage.getTitleText());
+//					System.out.println(htmlPage.getTitleText());
+					System.out.println(htmlPage.getUrl().toString());
 					this.save(htmlPage);
-					htmlPage = this.getNextPage(htmlPage);
+						
+					do {
+						htmlPage = this.getNextPage(htmlPage);
+					} while (htmlPage!=null && this.visitedPage.contains(htmlPage.getUrl().toString()));
 					
 				} catch (Exception e) {
-					System.out.println("ERRORE: "+htmlPage.getUrl());
+					e.printStackTrace();
 				}				
 			}
 
@@ -104,8 +115,10 @@ public class Crawler {
 	}
 
 	private void save(HtmlPage page) {
-		if (this.documentSaver.save(page))
+		if (this.documentSaver.save(page)){
 			this.pageSavedNumbers++;		
+			this.visitedPage.add(page.getUrl().toString());
+		}
 	}
 	
 }
