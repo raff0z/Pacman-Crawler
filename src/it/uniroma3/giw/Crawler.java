@@ -17,13 +17,12 @@ public class Crawler {
 
 	private String firstPageUrl;
 	private DocumentSaver documentSaver;
-	private final int CRAWLER_MAX_LENGTH = 10;
-	private int pageSavedNumbers = 0;
+	private final int CRAWLER_MAX_LENGTH = 40;
 	private List<HtmlAnchor> pageToVisit;
-	private final double TRESHOLD = 0.2; 
 
 	private Set<String> pageToVisitSet;
 
+	
 	public Crawler(String firstPage, String folderName){
 		this.firstPageUrl = firstPage;
 		this.documentSaver = new DocumentSaver(folderName);
@@ -31,6 +30,7 @@ public class Crawler {
 		this.pageToVisitSet = new HashSet<String>();
 	}	
 
+	
 	public WebClient getNewWebClient(){
 		WebClient webClient = new WebClient();
 		webClient.getOptions().setCssEnabled(false);
@@ -38,6 +38,8 @@ public class Crawler {
 		webClient.getOptions().setJavaScriptEnabled(false);
 		return webClient;
 	}
+	
+	
 	/**
 	 * Inizia il crawling
 	 */
@@ -48,7 +50,7 @@ public class Crawler {
 
 		try {
 			firstPage = webClient.getPage(this.firstPageUrl);
-			this.save(firstPage);
+			this.documentSaver.save(firstPage);
 			System.out.println(firstPage.getUrl().toString());
 			this.pageToVisitSet.add(firstPage.getUrl().toString());
 			
@@ -56,77 +58,27 @@ public class Crawler {
 			
 			this.addToPageToVisit(anchors ,firstPage );
 			
-			HtmlPage htmlPage = this.getPageFromList(this.pageToVisit, 0);
+			for(int i = 0 ; i < this.CRAWLER_MAX_LENGTH ; i++){
+			    HtmlPage htmlPage = this.pageToVisit.get(i).click();
+			    try {
+				System.out.println(htmlPage.getUrl().toString());
+				this.documentSaver.save(htmlPage);
 
-			while (htmlPage != null){
-
-				try {
-					System.out.println(htmlPage.getUrl().toString());
-					this.save(htmlPage);
-
-
-					htmlPage = this.getNextPage(htmlPage);
-
-
-				} catch (Exception e) {
-					e.printStackTrace();
-				}				
+				List<HtmlAnchor> newAnchors = filterAnchors(htmlPage.getAnchors(), htmlPage);
+				this.addToPageToVisit(newAnchors, htmlPage);
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}	
 			}
-
+			
 		} catch (FailingHttpStatusCodeException | IOException e) {
 			e.printStackTrace();
 		} 
 
 		webClient.closeAllWindows();
 	}
-
-	/**
-	 * Preleva ed elimina l'oggetto dalla lista
-	 * @param list 
-	 * @return
-	 * @throws IOException 
-	 */
-	private HtmlPage getPageFromList(List<HtmlAnchor> list, int index) throws IOException{
-		HtmlPage page = list.get(index).click();
-		list.remove(index);
-		return page;
-	}
-
-	/**
-	 * Prende la prossima pagina da visitare
-	 * @param htmlPage = la pagina da cui partire
-	 * @return
-	 * @throws IOException
-	 */
-	private HtmlPage getNextPage(HtmlPage htmlPage) throws IOException{
-
-		//Controllo se ho raggiunto il limite di pagine salvate
-		if (this.pageSavedNumbers == this.CRAWLER_MAX_LENGTH)
-			return null;
-
-		List<HtmlAnchor> newAnchors = filterAnchors(htmlPage.getAnchors(), htmlPage);
-		this.addToPageToVisit(newAnchors, htmlPage);
-
-		HtmlPage nextPage;
-		int randomIndex;
-		double randomSurfer = Math.random();
-		if (randomSurfer<TRESHOLD){
-			randomIndex = (int) (Math.random() * this.pageToVisit.size());
-			nextPage = this.getPageFromList(this.pageToVisit, randomIndex);	
-		} else {
-			randomIndex = (int) (Math.random() * newAnchors.size());
-			
-			nextPage = this.getPageFromList(newAnchors, randomIndex);
-		}
-
-		return nextPage;		
-	}
-
-	private void save(HtmlPage page) {
-		if (this.documentSaver.save(page)){
-			this.pageSavedNumbers++;		
-		}
-	}
+	
 	
 	/**
 	 * Aggiunge le ancore alla lista delle pagine da visitare, aggiungendogli la parte iniziale dell'Url
@@ -144,6 +96,7 @@ public class Crawler {
 		}
 	}
 	
+	
 	/**
 	 * Filtra le ancore per rimanere all'interno del dominio della pagina iniziale
 	 * @param anchors = la lista di ancore da filtrare
@@ -157,7 +110,7 @@ public class Crawler {
 	for (HtmlAnchor htmlAnchor : anchors) {
 	    String target = HtmlAnchor.getTargetUrl(
 		    htmlAnchor.getHrefAttribute(), htmlPage).toString();
-	    if (target.contains(firstPageUrl)) {
+	    if ((target.contains(firstPageUrl)&&(!this.pageToVisitSet.contains(target)))) {
 		newAnchors.add(htmlAnchor);
 	    }
 	}
