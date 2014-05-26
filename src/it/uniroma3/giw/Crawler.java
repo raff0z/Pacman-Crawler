@@ -50,7 +50,6 @@ public class Crawler {
 
 		try {
 			firstPage = webClient.getPage(this.firstPageUrl);
-			this.documentSaver.save(firstPage);
 			System.out.println(firstPage.getUrl().toString());
 			this.pageToVisitSet.add(firstPage.getUrl().toString());
 			
