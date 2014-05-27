@@ -17,12 +17,12 @@ public class Crawler {
 
 	private String firstPageUrl;
 	private DocumentSaver documentSaver;
-	private final int CRAWLER_MAX_LENGTH = 40;
+	private final int CRAWLER_MAX_LENGTH = 150;
 	private List<HtmlAnchor> pageToVisit;
 
 	private Set<String> pageToVisitSet;
 
-	
+
 	public Crawler(String firstPage, String folderName){
 		this.firstPageUrl = firstPage;
 		this.documentSaver = new DocumentSaver(folderName);
@@ -30,7 +30,7 @@ public class Crawler {
 		this.pageToVisitSet = new HashSet<String>();
 	}	
 
-	
+
 	public WebClient getNewWebClient(){
 		WebClient webClient = new WebClient();
 		webClient.getOptions().setCssEnabled(false);
@@ -38,8 +38,8 @@ public class Crawler {
 		webClient.getOptions().setJavaScriptEnabled(false);
 		return webClient;
 	}
-	
-	
+
+
 	/**
 	 * Inizia il crawling
 	 */
@@ -50,27 +50,26 @@ public class Crawler {
 
 		try {
 			firstPage = webClient.getPage(this.firstPageUrl);
-			System.out.println(firstPage.getUrl().toString());
 			this.pageToVisitSet.add(firstPage.getUrl().toString());
-			
-			List<HtmlAnchor> anchors = filterAnchors(firstPage.getAnchors(), firstPage);
-			
-			this.addToPageToVisit(anchors ,firstPage );
-			
-			for(int i = 0 ; i < this.CRAWLER_MAX_LENGTH ; i++){
-			    HtmlPage htmlPage = this.pageToVisit.get(i).click();
-			    try {
-				System.out.println(htmlPage.getUrl().toString());
-				this.documentSaver.save(htmlPage);
 
-				List<HtmlAnchor> newAnchors = filterAnchors(htmlPage.getAnchors(), htmlPage);
-				this.addToPageToVisit(newAnchors, htmlPage);
-				
-			} catch (Exception e) {
-				e.printStackTrace();
-			}	
+			List<HtmlAnchor> anchors = filterAnchors(firstPage.getAnchors(), firstPage);
+
+			this.addToPageToVisit(anchors ,firstPage );
+
+			for(int i = 0 ; i < this.CRAWLER_MAX_LENGTH && !this.pageToVisit.isEmpty(); i++){
+				HtmlPage htmlPage = getPageFromList(this.pageToVisit, i);
+				try {
+					System.out.println(htmlPage.getUrl().toString());
+					this.documentSaver.save(htmlPage);
+
+					List<HtmlAnchor> newAnchors = filterAnchors(htmlPage.getAnchors(), htmlPage);
+					this.addToPageToVisit(newAnchors, htmlPage);
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}	
 			}
-			
+
 		} catch (FailingHttpStatusCodeException | IOException e) {
 			e.printStackTrace();
 		} 
@@ -78,7 +77,13 @@ public class Crawler {
 		webClient.closeAllWindows();
 	}
 	
-	
+	private HtmlPage getPageFromList(List<HtmlAnchor> list, int index) throws IOException{
+		HtmlPage page = list.get(index).click();
+		list.remove(index);
+		return page;
+	}
+
+
 	/**
 	 * Aggiunge le ancore alla lista delle pagine da visitare, aggiungendogli la parte iniziale dell'Url
 	 * @param newAnchors = la lista di ancore da aggiungere
@@ -87,15 +92,15 @@ public class Crawler {
 	 */
 	private void addToPageToVisit(List<HtmlAnchor> newAnchors, HtmlPage htmlPage) throws MalformedURLException {
 		for(HtmlAnchor anchor : newAnchors) {
-		    String target = HtmlAnchor.getTargetUrl(anchor.getHrefAttribute(), htmlPage).toString();
+			String target = HtmlAnchor.getTargetUrl(anchor.getHrefAttribute(), htmlPage).toString();
 			if(!this.pageToVisitSet.contains(target)) {
 				this.pageToVisit.add(anchor);
 				this.pageToVisitSet.add(target);
 			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * Filtra le ancore per rimanere all'interno del dominio della pagina iniziale
 	 * @param anchors = la lista di ancore da filtrare
@@ -103,17 +108,15 @@ public class Crawler {
 	 * @return
 	 * @throws MalformedURLException
 	 */
-    private List<HtmlAnchor> filterAnchors(List<HtmlAnchor> anchors,
-	    HtmlPage htmlPage) throws MalformedURLException {
-	List<HtmlAnchor> newAnchors = new ArrayList<HtmlAnchor>();
-	for (HtmlAnchor htmlAnchor : anchors) {
-	    String target = HtmlAnchor.getTargetUrl(
-		    htmlAnchor.getHrefAttribute(), htmlPage).toString();
-	    if ((target.contains(firstPageUrl)&&(!this.pageToVisitSet.contains(target)))) {
-		newAnchors.add(htmlAnchor);
-	    }
+	private List<HtmlAnchor> filterAnchors(List<HtmlAnchor> anchors, HtmlPage htmlPage) throws MalformedURLException {
+		List<HtmlAnchor> newAnchors = new ArrayList<HtmlAnchor>();
+		for (HtmlAnchor htmlAnchor : anchors) {
+			String target = HtmlAnchor.getTargetUrl(htmlAnchor.getHrefAttribute(), htmlPage).toString();
+			if ((target.contains(firstPageUrl)&&(!this.pageToVisitSet.contains(target)))) {
+				newAnchors.add(htmlAnchor);
+			}
+		}
+		return newAnchors;
 	}
-	return newAnchors;
-    }
 
 }
