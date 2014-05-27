@@ -17,17 +17,19 @@ public class Crawler {
 
 	private String firstPageUrl;
 	private DocumentSaver documentSaver;
-	private final int CRAWLER_MAX_LENGTH = 150;
+	private final int CRAWLER_MAX_LENGTH = 10;
 	private List<HtmlAnchor> pageToVisit;
 
 	private Set<String> pageToVisitSet;
+	private String pathToSkip;
 
 
-	public Crawler(String firstPage, String folderName){
+	public Crawler(String firstPage, String folderName, String pathToSkip){
 		this.firstPageUrl = firstPage;
 		this.documentSaver = new DocumentSaver(folderName);
 		this.pageToVisit = new LinkedList<HtmlAnchor>();
 		this.pageToVisitSet = new HashSet<String>();
+		this.pathToSkip = pathToSkip;
 	}	
 
 
@@ -112,7 +114,13 @@ public class Crawler {
 		List<HtmlAnchor> newAnchors = new ArrayList<HtmlAnchor>();
 		for (HtmlAnchor htmlAnchor : anchors) {
 			String target = HtmlAnchor.getTargetUrl(htmlAnchor.getHrefAttribute(), htmlPage).toString();
-			if ((target.contains(firstPageUrl)&&(!this.pageToVisitSet.contains(target)))) {
+//			boolean booooo1 = target.contains(firstPageUrl);
+//			if (booooo1)
+//				System.out.println();
+//			boolean booooo2 = !this.pageToVisitSet.contains(target);
+//			boolean booooo3 = !target.matches(this.firstPageUrl + this.pathToSkip);
+			if ((target.contains(firstPageUrl)&&(!this.pageToVisitSet.contains(target)) && 
+					(!target.matches(this.firstPageUrl + this.pathToSkip)))) {
 				newAnchors.add(htmlAnchor);
 			}
 		}
