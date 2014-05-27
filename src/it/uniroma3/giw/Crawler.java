@@ -59,7 +59,7 @@ public class Crawler {
 			this.addToPageToVisit(anchors ,firstPage );
 
 			for(int i = 0 ; i < this.CRAWLER_MAX_LENGTH && !this.pageToVisit.isEmpty(); i++){
-				HtmlPage htmlPage = getPageFromList(this.pageToVisit, i);
+				HtmlPage htmlPage = getPageFromList(this.pageToVisit);
 				try {
 					System.out.println(htmlPage.getUrl().toString());
 					
@@ -83,9 +83,9 @@ public class Crawler {
 		webClient.closeAllWindows();
 	}
 	
-	private HtmlPage getPageFromList(List<HtmlAnchor> list, int index) throws IOException{
-		HtmlPage page = list.get(index).click();
-		list.remove(index);
+	private HtmlPage getPageFromList(List<HtmlAnchor> list) throws IOException{
+		HtmlPage page = list.get(0).click();
+		list.remove(0);
 		return page;
 	}
 
