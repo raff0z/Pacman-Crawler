@@ -11,20 +11,20 @@ public class Main {
 		String gamePage = "http://www.spaziogames.it/recensioni_videogiochi/";
 		
 		String sportPathToSkip = "\\?&start=.*";
-		String newsPathToSkip = "";
+		String newsPathToSkip = ".*/[^news]/.*";
 		String moviePathToSkip = "([^\\d].*|[0-9]{4}/$|.*\\?.*|[0-9]{4}/.+/.+)";		
 		String gamePathToSkip = "(index|articoli).aspx.*"; 
 		
 		String sportPathToAnalize = "";
-		String newsPathToAnalize = "([0-9]*|/$|#/?)";  
+		String newsPathToAnalize = "([0-9]*/|.*#/?)$";  
 		String moviePathToAnalize = "";		
 		String gamePathToAnalize = ""; 
 		
 		Crawler crawler = new Crawler(sportPage, "sport", sportPathToSkip, sportPathToAnalize);
-//		crawler.doCrawling();
+		crawler.doCrawling();
 		
 		crawler = new Crawler(newsPage, "news", newsPathToSkip, newsPathToAnalize);
-		//crawler.doCrawling();
+		crawler.doCrawling();
 //		
 //		crawler = new Crawler(moviePage, "movie", moviePathToSkip, moviePathToAnalize);
 //		crawler.doCrawling();
@@ -37,8 +37,9 @@ public class Main {
 
 		System.out.println("Tempo totale impiegato: " + (end-start));
 		
-		System.out.println("http://www.repubblica.it/cronaca/#".matches(newsPage + newsPathToAnalize));
-
+		System.out.println("http://www.repubblica.it/cronaca/2014/05/28/foto/l_arrivo_dei_bambini_dal_congo_gli_abbracci_con_i_familiari-87463951/1/".matches(newsPage + newsPathToSkip));
+		System.out.println("http://www.repubblica.it/cronaca/2014/05/22/news/affari_e_politica_i_segreti_di_o_ninno_che_fanno_tremare_l_impero_dei_clan-86814890/".matches(newsPage + newsPathToSkip));
+		
 //		System.out.println("http://www.mymovies.it/film/2014/".matches(moviePage + moviePathToSkip));//true
 //		System.out.println("http://www.mymovies.it/film/drammatici/".matches(moviePage + moviePathToSkip));//true
 //		System.out.println("http://www.mymovies.it/film/2014/lemeraviglie/".matches(moviePage/* + moviePathToSkip*/));//false

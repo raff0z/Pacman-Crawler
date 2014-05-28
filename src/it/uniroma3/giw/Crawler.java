@@ -86,10 +86,14 @@ public class Crawler {
 						System.out.println(url);
 						this.save(htmlPage);
 					}
-					else //Creato solo per la stampa
-						System.out.println("Visitata ma non salvata: " + url);
+				//	else //Creato solo per la stampa
+				//		System.out.println("Visitata ma non salvata: " + url);
 
-					this.pageCached.add(url);
+					//this.pageCached.add(url);
+					
+					//System.out.println("cache: " + this.pageCached.toString());
+					//System.out.println();
+					
 					htmlPage = getPageFromList(this.pageToVisit, htmlPage);
 
 				} catch (IOException e){
@@ -151,6 +155,7 @@ public class Crawler {
 
 	private void save(HtmlPage page) {
 		if (this.documentSaver.save(page)){
+			System.out.println("salvo");
 			this.pageSavedNumbers++;		
 		}
 	}
@@ -167,8 +172,22 @@ public class Crawler {
 		do {
 			anchor = list.get(0);
 			list.remove(0);
-			url = HtmlAnchor.getTargetUrl(anchor.getHrefAttribute(), htmlPage).toString();
+			url = HtmlAnchor.getTargetUrl(anchor.getHrefAttribute(), htmlPage).toString();				
+				
+			
+			//Se c'è il # lo elimina
+			if (url.charAt(url.length()-1) == '#')
+				url = url.substring(0, url.length()-2);
+			
+			//Controlla se l'url ha lo / finale
+			if (url.charAt(url.length()-1) != '/')
+				url += "/";
+			
+			
+			//System.out.println("Contains: " + this.pageCached.contains(url) + " " + url + " cache: " + this.pageCached);
 		} while (this.pageCached.contains(url));
+		
+		this.pageCached.add(url);
 
 		HtmlPage page = anchor.click();
 		return page;
