@@ -65,8 +65,7 @@ public class DocumentSaver {
 			this.counter++;
 			return true;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		return false;
 	}

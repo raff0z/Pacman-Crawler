@@ -11,26 +11,33 @@ public class Main {
 		String gamePage = "http://www.spaziogames.it/recensioni_videogiochi/";
 		
 		String sportPathToSkip = "\\?&start=.*";
-		String newsPathToSkip = "[0-9]*/$";
+		String newsPathToSkip = "";
 		String moviePathToSkip = "([^\\d].*|[0-9]{4}/$|.*\\?.*|[0-9]{4}/.+/.+)";		
 		String gamePathToSkip = "(index|articoli).aspx.*"; 
 		
-		Crawler crawler = new Crawler(sportPage, "sport", sportPathToSkip);
-		crawler.doCrawling();
+		String sportPathToAnalize = "";
+		String newsPathToAnalize = "([0-9]*|/$|#/?)";  
+		String moviePathToAnalize = "";		
+		String gamePathToAnalize = ""; 
 		
-		crawler = new Crawler(newsPage, "news", newsPathToSkip);
-		crawler.doCrawling();
+		Crawler crawler = new Crawler(sportPage, "sport", sportPathToSkip, sportPathToAnalize);
+//		crawler.doCrawling();
 		
-		crawler = new Crawler(moviePage, "movie", moviePathToSkip);
-		crawler.doCrawling();
-		
-		crawler = new Crawler(gamePage, "game", gamePathToSkip);
-		crawler.doCrawling();
+		crawler = new Crawler(newsPage, "news", newsPathToSkip, newsPathToAnalize);
+		//crawler.doCrawling();
+//		
+//		crawler = new Crawler(moviePage, "movie", moviePathToSkip, moviePathToAnalize);
+//		crawler.doCrawling();
+//		
+//		crawler = new Crawler(gamePage, "game", gamePathToSkip, gamePathToAnalize);
+//		crawler.doCrawling();
 		
 		long end = System.currentTimeMillis()/1000;		
 		
 
 		System.out.println("Tempo totale impiegato: " + (end-start));
+		
+		System.out.println("http://www.repubblica.it/cronaca/#".matches(newsPage + newsPathToAnalize));
 
 //		System.out.println("http://www.mymovies.it/film/2014/".matches(moviePage + moviePathToSkip));//true
 //		System.out.println("http://www.mymovies.it/film/drammatici/".matches(moviePage + moviePathToSkip));//true
