@@ -28,16 +28,16 @@ public class Main {
 		String gamePathToAnalize = "(index|articoli).aspx.*|"; 
 		
 		Crawler crawler = new Crawler(sportPage, "sport", sportPathToSkip, sportPathToAnalize);
-		crawler.doCrawling();
+//		crawler.doCrawling();
 		
 		crawler = new Crawler(newsPage, "news", newsPathToSkip, newsPathToAnalize);
 		crawler.doCrawling();
 		
 		crawler = new Crawler(moviePage, "movie", moviePathToSkip, moviePathToAnalize);
-		crawler.doCrawling();
+//		crawler.doCrawling();
 		
 		crawler = new Crawler(gamePage, "game", gamePathToSkip, gamePathToAnalize);
-		crawler.doCrawling();
+//		crawler.doCrawling();
 		
 		long end = System.currentTimeMillis()/1000;		
 		System.out.println("Tempo totale impiegato: " + (end-start));

@@ -13,16 +13,16 @@ import java.util.Properties;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 public class DocumentSaver {
-	
+
 	private int counter;
 	private String crawlerPath;
 	private String id2UrlPath;
 	private static final int STRING_LENGTH = 5;
 	private File id2Url;
-	
+
 	public DocumentSaver(String foldierName) {
 		this.counter = 0;
-		
+
 		Properties conf = new Properties();
 		try {
 			InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("config/pacman_configuration.properties");
@@ -33,10 +33,10 @@ public class DocumentSaver {
 
 		this.crawlerPath = conf.getProperty("crawler-path");
 		this.id2UrlPath = conf.getProperty("id2url-path");
-		
+
 		this.crawlerPath += foldierName + File.separator + "pages" + File.separator;
 		this.id2UrlPath += foldierName + File.separator;
-		
+
 		this.id2Url = new File(this.id2UrlPath + File.separator + "id2url.txt");
 		this.cleanPath();
 		try {
@@ -48,7 +48,7 @@ public class DocumentSaver {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public int getCounter() {
 		return this.counter;
 	}
@@ -58,47 +58,61 @@ public class DocumentSaver {
 	}
 
 	public boolean save(HtmlPage page) {
-		
-		try {
-			String nameFile = this.crawlerPath + getStringFromCounter(this.counter) +".html";
+		String nameFile = this.crawlerPath + getStringFromCounter(this.counter) +".html";
+		try {			
 			page.save(new File(nameFile));			
-			this.append(this.id2UrlPath + "id2url.txt", nameFile + " -> " + page.getUrl().toString());			
-			this.counter++;
+			this.updateID2URL(nameFile, page.getUrl().toString());
 			return true;
 		} catch (MalformedURLException e1){
-			e1.printStackTrace();
-			this.manuallySave(page);
+			//Se non riesce, provo a salvare a mano
+//			e1.printStackTrace();
+			this.manuallySave(page, nameFile);
+			this.updateID2URL(nameFile, page.getUrl().toString());
+			return true;
 		} catch (IOException e) {
-//			System.out.println(e.getMessage());
-//			e.printStackTrace();
+			//			System.out.println(e.getMessage());
+			e.printStackTrace();
 		}
 		return false;
 	}
 	
-	private void manuallySave(HtmlPage page) {
-		// TODO Auto-generated method stub
-//		page.
+	private void updateID2URL(String nameFile, String url){
+		this.append(this.id2UrlPath + "id2url.txt", nameFile + " -> " + url);			
+		this.counter++;
+	}
+
+	private void manuallySave(HtmlPage page, String nameFile) {
+		String htmlCode = page.asXml();
+		try {
+			FileOutputStream file = new FileOutputStream(nameFile);
+			PrintStream stream = new PrintStream(file);
+			stream.print(htmlCode);
+			stream.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	private String getStringFromCounter(int counter) {
 		int zeroToAdd = 4;
 		if(counter > 0) 
 			zeroToAdd = STRING_LENGTH - (int) Math.log10(counter) - 1;
-		
+
 		String output = "";
 		while(zeroToAdd > 0) {
 			output+="0";
 			zeroToAdd--;
 		}
 		return output+""+counter;
-		
+
 	}
-	
+
 	private void cleanPath() {
 		File dir = new File(this.crawlerPath);
 		if (dir.exists())
 			deleteFolder(dir);
-		
+
 		if(this.id2Url.exists()){
 			this.id2Url.delete();
 			new File(this.id2UrlPath).delete();
@@ -112,7 +126,7 @@ public class DocumentSaver {
 			f.delete();		
 		}
 	}
-	
+
 	private void append(String fileName, String toAppend) {
 		try {			
 			FileWriter fw = new FileWriter(fileName,true); 
@@ -122,5 +136,5 @@ public class DocumentSaver {
 			e.printStackTrace();
 		}
 	}
-	
+
 }
