@@ -162,7 +162,7 @@ public class Crawler {
 
 
 	private HtmlPage getPageFromList(List<HtmlAnchor> list, HtmlPage htmlPage) throws IOException{
-		if (this.pageSavedNumbers == this.CRAWLER_MAX_LENGTH || list.isEmpty())
+		if (this.pageSavedNumbers == this.CRAWLER_MAX_LENGTH)
 			return null;
 		
 		HtmlAnchor anchor;
@@ -170,6 +170,9 @@ public class Crawler {
 		
 		//Controllo che la pagina non sia stata già visitata
 		do {
+			if (list.isEmpty())
+				return null;
+			
 			anchor = list.get(0);
 			list.remove(0);
 			url = HtmlAnchor.getTargetUrl(anchor.getHrefAttribute(), htmlPage).toString();				

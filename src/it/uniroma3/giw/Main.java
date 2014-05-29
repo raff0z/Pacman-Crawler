@@ -1,5 +1,12 @@
 package it.uniroma3.giw;
 
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+
+import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
+
 public class Main {
 
 	public static void main(String[] args) {
@@ -21,10 +28,10 @@ public class Main {
 		String gamePathToAnalize = ""; 
 		
 		Crawler crawler = new Crawler(sportPage, "sport", sportPathToSkip, sportPathToAnalize);
-		crawler.doCrawling();
+//		crawler.doCrawling();
 		
 		crawler = new Crawler(newsPage, "news", newsPathToSkip, newsPathToAnalize);
-		crawler.doCrawling();
+//		crawler.doCrawling();
 //		
 //		crawler = new Crawler(moviePage, "movie", moviePathToSkip, moviePathToAnalize);
 //		crawler.doCrawling();
@@ -40,7 +47,8 @@ public class Main {
 		System.out.println("http://www.repubblica.it/cronaca/2014/05/28/foto/l_arrivo_dei_bambini_dal_congo_gli_abbracci_con_i_familiari-87463951/1/".matches(newsPage + newsPathToSkip));
 		System.out.println("http://www.repubblica.it/cronaca/2014/05/22/news/affari_e_politica_i_segreti_di_o_ninno_che_fanno_tremare_l_impero_dei_clan-86814890/".matches(newsPage + newsPathToSkip));
 		
-//		System.out.println("http://www.mymovies.it/film/2014/".matches(moviePage + moviePathToSkip));//true
+
+		System.out.println("http://www.mymovies.it/film/2014/".matches(moviePage + moviePathToSkip));//true
 //		System.out.println("http://www.mymovies.it/film/drammatici/".matches(moviePage + moviePathToSkip));//true
 //		System.out.println("http://www.mymovies.it/film/2014/lemeraviglie/".matches(moviePage/* + moviePathToSkip*/));//false
 //		
@@ -48,6 +56,6 @@ public class Main {
 //		System.out.println("http://www.spaziogames.it/recensioni_videogiochi/index.aspx?c=multi&p=2".matches(gamePage + gamePathToSkip));//true
 //		System.out.println("http://www.spaziogames.it/recensioni_videogiochi/console_multi_piattaforma/16253/watch-dogs.aspx".matches(gamePage + gamePathToSkip));//false
 
-	}
-
+	}	
+	
 }
