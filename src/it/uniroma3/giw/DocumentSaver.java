@@ -66,7 +66,7 @@ public class DocumentSaver {
 			this.counter++;
 			return true;
 		} catch (MalformedURLException e1){
-//			e1.printStackTrace();
+			e1.printStackTrace();
 			this.manuallySave(page);
 		} catch (IOException e) {
 //			System.out.println(e.getMessage());
@@ -77,7 +77,7 @@ public class DocumentSaver {
 	
 	private void manuallySave(HtmlPage page) {
 		// TODO Auto-generated method stub
-		
+//		page.
 	}
 
 	private String getStringFromCounter(int counter) {
