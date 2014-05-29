@@ -65,12 +65,10 @@ public class DocumentSaver {
 			return true;
 		} catch (MalformedURLException e1){
 			//Se non riesce, provo a salvare a mano
-//			e1.printStackTrace();
 			this.manuallySave(page, nameFile);
 			this.updateID2URL(nameFile, page.getUrl().toString());
 			return true;
 		} catch (IOException e) {
-			//			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}
 		return false;

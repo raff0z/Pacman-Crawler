@@ -26,14 +26,6 @@ public class Crawler {
 	private int pageSavedNumbers;
 	private WebClient webClient;
 
-
-	/**
-	 * 
-	 * @param firstPage
-	 * @param folderName
-	 * @param pathToSkip sono le pagine da scartare completamente
-	 * @param pathToAnalize sono le pagine da cui bisogna prendere le informazioni, senza salvare la pagina stessa
-	 */
 	public Crawler(String firstPage, String folderName, String pathToSkip, String pathToAnalize){
 		this.firstPageUrl = firstPage;
 		this.documentSaver = new DocumentSaver(folderName);
@@ -44,7 +36,6 @@ public class Crawler {
 		this.pageSavedNumbers = 0;
 	}	
 
-
 	public WebClient getNewWebClient(){
 		WebClient webClient = new WebClient();
 		webClient.getOptions().setCssEnabled(false);
@@ -52,7 +43,6 @@ public class Crawler {
 		webClient.getOptions().setJavaScriptEnabled(false);
 		return webClient;
 	}
-
 
 	/**
 	 * Inizia il crawling
@@ -65,8 +55,8 @@ public class Crawler {
 		try {
 
 			htmlPage = this.webClient.getPage(this.firstPageUrl);
+			
 			//Aggiungo la pagina nella cache per analizzarla una seconda volta
-			//this.pageToVisitSet.add(htmlPage.getUrl().toString());
 			this.pageCached.add(this.firstPageUrl);
 			
 			//La prima pagina non va mai salvata, ma va analizzata per estrarre i link
@@ -89,22 +79,17 @@ public class Crawler {
 //					else //Creato solo per la stampa
 //						System.out.println("Visitata ma non salvata: " + url);
 
-					//this.pageCached.add(url);
-					
-					//System.out.println("cache: " + this.pageCached.toString());
-					//System.out.println();
-					
 					htmlPage = getPageFromList(this.pageToVisit, htmlPage);
 
 				} catch (IOException e){
-					
+					//Salta semplecemente la pagina, senza fare alcunchè
 				}
 
 
 			} 	
 
 		} catch (FailingHttpStatusCodeException | IOException e) {
-			//e.printStackTrace();
+			System.out.println(e.getMessage());
 		} 
 
 		this.webClient.closeAllWindows();
@@ -113,7 +98,6 @@ public class Crawler {
 
 	private void extractAnchors(HtmlPage htmlPage) {
 		String url;
-		//List<HtmlAnchor> filteredAnchors = new LinkedList<HtmlAnchor>();
 		for (HtmlAnchor anchor : htmlPage.getAnchors()){
 			try{
 
@@ -121,44 +105,20 @@ public class Crawler {
 				if (url.contains(firstPageUrl) && 					//Se appartiene al dominio
 						(!this.pageCached.contains(url)) &&		//se non è stata già vista
 						(!url.matches(this.firstPageUrl + this.pathToSkip)) ){ //e se non è da scartare
-					//filteredAnchors.add(anchor);
 					this.pageToVisit.add(anchor);
-					//getire i duplicati qua dentro
 				}
 
 			} catch (Exception e){
-				//e.printStackTrace();
+				//Salta semplecemente la pagina, senza fare alcunchè
 			}
 		}			
-		//this.addToPageToVisit(filteredAnchors, htmlPage);
 	}
-
-//	/**
-//	 * Aggiunge le ancore alla lista delle pagine da visitare, aggiungendogli la parte iniziale dell'Url
-//	 * @param newAnchors = la lista di ancore da aggiungere
-//	 * @param htmlPage = la pagina iniziale
-//	 * @throws MalformedURLException
-//	 */
-//	private void addToPageToVisit(List<HtmlAnchor> newAnchors, HtmlPage htmlPage){
-//		for(HtmlAnchor anchor : newAnchors) {
-//			try {
-//				String target = HtmlAnchor.getTargetUrl(anchor.getHrefAttribute(), htmlPage).toString();
-//				if(!this.pageCached.contains(target)) {
-//					this.pageToVisit.add(anchor);
-//					this.pageCached.add(target);
-//				}
-//			} catch (MalformedURLException e){
-//				//e.printStackTrace();;
-//			}
-//		}
-//	}
 
 	private void save(HtmlPage page) {
 		if (this.documentSaver.save(page)){
 			this.pageSavedNumbers++;		
 		}
 	}
-
 
 	private HtmlPage getPageFromList(List<HtmlAnchor> list, HtmlPage htmlPage) throws IOException{
 		if (this.pageSavedNumbers == this.CRAWLER_MAX_LENGTH)
@@ -175,7 +135,6 @@ public class Crawler {
 			anchor = list.get(0);
 			list.remove(0);
 			url = HtmlAnchor.getTargetUrl(anchor.getHrefAttribute(), htmlPage).toString();				
-				
 			
 			//Se c'è il # lo elimina
 			if (url.charAt(url.length()-1) == '#')
@@ -185,7 +144,6 @@ public class Crawler {
 			if (url.charAt(url.length()-1) != '/')
 				url += "/";
 			
-			
 			//System.out.println("Contains: " + this.pageCached.contains(url) + " " + url + " cache: " + this.pageCached);
 		} while (this.pageCached.contains(url));
 		
@@ -194,31 +152,5 @@ public class Crawler {
 		HtmlPage page = anchor.click();
 		return page;
 	}
-
-	//
-	//
-	//	/**
-	//	 * Filtra le ancore per rimanere all'interno del dominio della pagina iniziale
-	//	 * @param anchors = la lista di ancore da filtrare
-	//	 * @param htmlPage = la pagina da cui parte
-	//	 * @return
-	//	 * @throws MalformedURLException
-	//	 */
-	//	private List<HtmlAnchor> filterAnchors(List<HtmlAnchor> anchors, HtmlPage htmlPage) throws MalformedURLException {
-	//		List<HtmlAnchor> newAnchors = new ArrayList<HtmlAnchor>();
-	//		for (HtmlAnchor htmlAnchor : anchors) {
-	//			String target = HtmlAnchor.getTargetUrl(htmlAnchor.getHrefAttribute(), htmlPage).toString();
-	//			//			boolean booooo1 = target.contains(firstPageUrl);
-	//			//			if (booooo1)
-	//			//				System.out.println();
-	//			//			boolean booooo2 = !this.pageToVisitSet.contains(target);
-	//			//			boolean booooo3 = !target.matches(this.firstPageUrl + this.pathToSkip);
-	//			if ((target.contains(firstPageUrl)&&(!this.pageToVisitSet.contains(target)) && 
-	//					(!target.matches(this.firstPageUrl + this.pathToSkip)))) {
-	//				newAnchors.add(htmlAnchor);
-	//			}
-	//		}
-	//		return newAnchors;
-	//	}
-
+	
 }
