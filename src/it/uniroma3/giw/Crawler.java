@@ -86,8 +86,8 @@ public class Crawler {
 						System.out.println(url);
 						this.save(htmlPage);
 					}
-				//	else //Creato solo per la stampa
-				//		System.out.println("Visitata ma non salvata: " + url);
+//					else //Creato solo per la stampa
+//						System.out.println("Visitata ma non salvata: " + url);
 
 					//this.pageCached.add(url);
 					
@@ -133,29 +133,28 @@ public class Crawler {
 		//this.addToPageToVisit(filteredAnchors, htmlPage);
 	}
 
-	/**
-	 * Aggiunge le ancore alla lista delle pagine da visitare, aggiungendogli la parte iniziale dell'Url
-	 * @param newAnchors = la lista di ancore da aggiungere
-	 * @param htmlPage = la pagina iniziale
-	 * @throws MalformedURLException
-	 */
-	private void addToPageToVisit(List<HtmlAnchor> newAnchors, HtmlPage htmlPage){
-		for(HtmlAnchor anchor : newAnchors) {
-			try {
-				String target = HtmlAnchor.getTargetUrl(anchor.getHrefAttribute(), htmlPage).toString();
-				if(!this.pageCached.contains(target)) {
-					this.pageToVisit.add(anchor);
-					this.pageCached.add(target);
-				}
-			} catch (MalformedURLException e){
-				//e.printStackTrace();;
-			}
-		}
-	}
+//	/**
+//	 * Aggiunge le ancore alla lista delle pagine da visitare, aggiungendogli la parte iniziale dell'Url
+//	 * @param newAnchors = la lista di ancore da aggiungere
+//	 * @param htmlPage = la pagina iniziale
+//	 * @throws MalformedURLException
+//	 */
+//	private void addToPageToVisit(List<HtmlAnchor> newAnchors, HtmlPage htmlPage){
+//		for(HtmlAnchor anchor : newAnchors) {
+//			try {
+//				String target = HtmlAnchor.getTargetUrl(anchor.getHrefAttribute(), htmlPage).toString();
+//				if(!this.pageCached.contains(target)) {
+//					this.pageToVisit.add(anchor);
+//					this.pageCached.add(target);
+//				}
+//			} catch (MalformedURLException e){
+//				//e.printStackTrace();;
+//			}
+//		}
+//	}
 
 	private void save(HtmlPage page) {
 		if (this.documentSaver.save(page)){
-			System.out.println("salvo");
 			this.pageSavedNumbers++;		
 		}
 	}

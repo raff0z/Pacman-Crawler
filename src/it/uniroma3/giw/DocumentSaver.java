@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
 import java.util.Properties;
 
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -64,12 +65,21 @@ public class DocumentSaver {
 			this.append(this.id2UrlPath + "id2url.txt", nameFile + " -> " + page.getUrl().toString());			
 			this.counter++;
 			return true;
+		} catch (MalformedURLException e1){
+//			e1.printStackTrace();
+			this.manuallySave(page);
 		} catch (IOException e) {
-			System.out.println(e.getMessage());
+//			System.out.println(e.getMessage());
+//			e.printStackTrace();
 		}
 		return false;
 	}
 	
+	private void manuallySave(HtmlPage page) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	private String getStringFromCounter(int counter) {
 		int zeroToAdd = 4;
 		if(counter > 0) 
